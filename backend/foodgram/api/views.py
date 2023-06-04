@@ -103,6 +103,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             error_message = 'Данного рецепта нет в избранном.'
             return delete_model_instance(request, Favorite,
                                          recipe, error_message)
+        return None
 
     @action(
         detail=True,
@@ -120,6 +121,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             error_message = 'Данного рецепта нет в списке покупок.'
             return delete_model_instance(request, ShoppingCart,
                                          recipe, error_message)
+        return None
 
     @action(
         detail=False,
