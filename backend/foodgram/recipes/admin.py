@@ -78,7 +78,7 @@ class RecipeIngredientAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
 
 
-class FavoriteAdmin(admin.ModelAdmin):
+class AbstractUserItemAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
         'user',
@@ -91,17 +91,12 @@ class FavoriteAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
 
 
-class ShoppingCartAdmin(admin.ModelAdmin):
-    list_display = (
-        'pk',
-        'user',
-        'recipe'
-    )
-    search_fields = (
-        'user',
-        'recipe'
-    )
-    empty_value_display = '-пусто-'
+class FavoriteAdmin(AbstractUserItemAdmin):
+    pass
+
+
+class ShoppingCartAdmin(AbstractUserItemAdmin):
+    pass
 
 
 admin.site.register(Tag, TagAdmin)

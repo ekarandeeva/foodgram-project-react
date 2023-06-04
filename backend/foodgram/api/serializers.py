@@ -69,7 +69,7 @@ class UserSubscribeRepresentSerializer(UserGetSerializer):
 class UserSubscribeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscription
-        fields = '__all__'
+        fields = ('id', 'user', 'author')
         validators = [
             UniqueTogetherValidator(
                 queryset=Subscription.objects.all(),
@@ -96,13 +96,13 @@ class UserSubscribeSerializer(serializers.ModelSerializer):
 class TagSerialiser(serializers.ModelSerializer):
     class Meta:
         model = Tag
-        fields = '__all__'
+        fields = ('id', 'name', 'color', 'slug')
 
 
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
-        fields = '__all__'
+        fields = ('id', 'name', 'measurement_unit')
 
 
 class IngredientGetSerializer(serializers.ModelSerializer):
@@ -134,7 +134,7 @@ class RecipeGetSerializer(serializers.ModelSerializer):
                                           source='recipeingredients')
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    image = Base64ImageField(required=False)
+    image = Base64ImageField(required=True)
 
     class Meta:
         model = Recipe
@@ -183,7 +183,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             ingredients_list.append(ingredient.get('id'))
         if len(set(ingredients_list)) != len(ingredients_list):
             raise serializers.ValidationError(
-                'Ингредиент с таким названием уже добавлен в рецепт.'
+                'Ингредиенты не должны повторяться!'
             )
         return data
 
@@ -220,7 +220,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
 class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
-        fields = '__all__'
+        fields = ('id', 'user', 'recipe')
         validators = [
             UniqueTogetherValidator(
                 queryset=Favorite.objects.all(),
@@ -240,7 +240,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
 class ShoppingCartSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShoppingCart
-        fields = '__all__'
+        fields = ('id', 'user', 'recipe')
         validators = [
             UniqueTogetherValidator(
                 queryset=ShoppingCart.objects.all(),

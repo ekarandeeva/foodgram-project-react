@@ -8,17 +8,13 @@ class User(AbstractUser):
         max_length=254,
         verbose_name='Email',
         help_text='Укажите email',
-        unique=True,
-        blank=False,
-        null=False
+        unique=True
     )
     username = models.CharField(
         max_length=150,
         verbose_name='Логин',
         help_text='Укажите логин',
         unique=True,
-        blank=False,
-        null=False,
         validators=[RegexValidator(
             regex=r'^[\w.@+-]+$',
             message='Имя пользователя содержит недопустимый символ'
@@ -27,26 +23,20 @@ class User(AbstractUser):
     first_name = models.CharField(
         max_length=150,
         verbose_name='Имя',
-        help_text='Укажите Ваше имя',
-        blank=False,
-        null=False
+        help_text='Укажите Ваше имя'
     )
     last_name = models.CharField(
         max_length=150,
         verbose_name='Фамилия',
-        help_text='Укажите Вашу фамилию',
-        blank=False,
-        null=False
+        help_text='Укажите Вашу фамилию'
     )
     password = models.CharField(
         max_length=150,
-        verbose_name='Пароль',
-        blank=False,
-        null=False
+        verbose_name='Пароль'
     )
 
     class Meta:
-        ordering = ['id', ]
+        ordering = ('id',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
         constraints = [
@@ -57,7 +47,7 @@ class User(AbstractUser):
         ]
 
     def __str__(self):
-        return self.username
+        return self.username[:50]
 
 
 class Subscription(models.Model):
