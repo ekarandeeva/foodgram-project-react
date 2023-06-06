@@ -54,50 +54,79 @@ jobs:
           tags: ${{ secrets.DOCKER_USERNAME }}/frontend
 
   deploy:
-    if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     needs: build_and_push_to_docker_hub
+    if: github.ref == 'refs/heads/master'
     steps:
-    - name: pull from docker
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USER }}
-        key: ${{ secrets.SSH_KEY }}
-        passphrase: ${{ secrets.PASSPHRASE }}
-        script: |
-          docker rm -v -f $(docker ps -qa)
-          sudo systemctl stop nginx
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/backend
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/frontend
-          sudo docker-compose stop
-          sudo docker-compose rm backend
-    - name: docker-compose up
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USER }}
-        key: ${{ secrets.SSH_KEY }}
-        passphrase: ${{ secrets.PASSPHRASE }}
-        script: |
-          cd foodgram-project-react/infra/
-          sudo rm .env
-          sudo touch .env
-          sudo chmod ugo+rwx .env
-          echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
-          echo DB_NAME=${{ secrets.DB_NAME }} >> .env
-          echo DB_USER=${{ secrets.DB_USER }} >> .env
-          echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
-          echo DB_HOST=${{ secrets.DB_HOST }} >> .env
-          echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-          echo SECRET_KEY="${{ secrets.SECRET_KEY }}" >> .env
-          # echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env
-          # echo DEBUG=${{ secrets.DEBUG }} >> .env
-          sudo docker-compose up -d --build
-          sudo docker-compose exec -T backend python manage.py collectstatic --no-input
-          sudo docker-compose exec -T backend python manage.py makemigrations
-          sudo docker-compose exec -T backend python manage.py migrate
-          sudo docker-compose exec -T backend python manage.py csv_load_data
+      - name: executing remote ssh commands to deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          script: |
+            sudo docker-compose stop
+            sudo docker-compose rm web
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/backend
+            touch .env
+            echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
+            echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+            echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
+            echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
+            echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+            echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+            sudo docker-compose up -d --build
+            sudo docker-compose exec -T backend python manage.py collectstatic --no-input
+            sudo docker-compose exec -T backend python manage.py makemigrations
+            sudo docker-compose exec -T backend python manage.py migrate
+            sudo docker-compose exec -T backend python manage.py csv_load_data
+
+  # deploy:
+  #   if: github.ref == 'refs/heads/master'
+  #   runs-on: ubuntu-latest
+  #   needs: build_and_push_to_docker_hub
+  #   steps:
+  #   - name: pull from docker
+  #     uses: appleboy/ssh-action@master
+  #     with:
+  #       host: ${{ secrets.HOST }}
+  #       username: ${{ secrets.USER }}
+  #       key: ${{ secrets.SSH_KEY }}
+  #       passphrase: ${{ secrets.PASSPHRASE }}
+  #       script: |
+  #         docker rm -v -f $(docker ps -qa)
+  #         sudo systemctl stop nginx
+  #         sudo docker pull ${{ secrets.DOCKER_USERNAME }}/backend
+  #         sudo docker pull ${{ secrets.DOCKER_USERNAME }}/frontend
+  #         sudo docker-compose stop
+  #         sudo docker-compose rm backend
+  #   - name: docker-compose up
+  #     uses: appleboy/ssh-action@master
+  #     with:
+  #       host: ${{ secrets.HOST }}
+  #       username: ${{ secrets.USER }}
+  #       key: ${{ secrets.SSH_KEY }}
+  #       passphrase: ${{ secrets.PASSPHRASE }}
+  #       script: |
+  #         cd foodgram-project-react/infra/
+  #         sudo rm .env
+  #         sudo touch .env
+  #         sudo chmod ugo+rwx .env
+  #         echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
+  #         echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+  #         echo DB_USER=${{ secrets.DB_USER }} >> .env
+  #         echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
+  #         echo DB_HOST=${{ secrets.DB_HOST }} >> .env
+  #         echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+  #         echo SECRET_KEY="${{ secrets.SECRET_KEY }}" >> .env
+  #         # echo ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }} >> .env
+  #         # echo DEBUG=${{ secrets.DEBUG }} >> .env
+  #         sudo docker-compose up -d --build
+  #         sudo docker-compose exec -T backend python manage.py collectstatic --no-input
+  #         sudo docker-compose exec -T backend python manage.py makemigrations
+  #         sudo docker-compose exec -T backend python manage.py migrate
+  #         sudo docker-compose exec -T backend python manage.py csv_load_data
 
   send_message:
     runs-on: ubuntu-latest
