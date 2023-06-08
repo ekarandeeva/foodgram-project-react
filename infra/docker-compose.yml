@@ -13,7 +13,7 @@ services:
     restart: always
     volumes:
       - static_value:/app/static/
-      - media_value:/app/media/ 
+      - media_value:/app/media/
     depends_on:
       - db
     env_file:
@@ -23,6 +23,8 @@ services:
     image: ekarandeeva/frontend
     volumes:
       - ../frontend/:/app/result_build/
+    depends_on:
+      - web
 
   nginx:
     image: nginx:1.21.3-alpine
@@ -35,7 +37,9 @@ services:
       - static_value:/var/html/static/
       - media_value:/var/html/media/
     depends_on:
-      - backend
+      - web
+      - frontend
+    restart: always
 
 volumes:
   static_value:
