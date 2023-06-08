@@ -1,8 +1,11 @@
 version: '3.8'
 services:
-
   db:
     image: postgres:13.0-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_HOST}
     volumes:
       - db_data:/var/lib/postgresql/data/
     env_file:
@@ -23,8 +26,6 @@ services:
     image: ekarandeeva/frontend
     volumes:
       - ../frontend/:/app/result_build/
-    depends_on:
-      - web
 
   nginx:
     image: nginx:1.21.3-alpine
@@ -37,9 +38,7 @@ services:
       - static_value:/var/html/static/
       - media_value:/var/html/media/
     depends_on:
-      - web
-      - frontend
-    restart: always
+      - backend
 
 volumes:
   static_value:
