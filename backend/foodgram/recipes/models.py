@@ -146,6 +146,7 @@ class AbstractUserItem(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
+        related_name='%(class)ss',
         verbose_name='Рецепт'
     )
 
