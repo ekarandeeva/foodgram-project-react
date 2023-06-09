@@ -138,7 +138,7 @@ class RecipeGetSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ('id', 'tags', 'author', 'ingredients',
                   'is_favorited', 'is_in_shopping_cart', 'name',
-                  'image', 'text', 'cooking_time')
+                  'image', 'description', 'cooking_time')
 
     def get_is_favorited(self, obj):
         request = self.context.get('request')
@@ -169,7 +169,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('ingredients', 'tags', 'image',
-                  'name', 'text', 'cooking_time')
+                  'name', 'description', 'cooking_time')
 
     def validate(self, data):
         ingredients_list = []
