@@ -60,7 +60,7 @@ class Recipe(models.Model):
         'Картинка',
         upload_to='recipes/'
     )
-    description = models.TextField(
+    text = models.TextField(
         'Описание',
     )
     ingredients = models.ManyToManyField(
@@ -72,7 +72,7 @@ class Recipe(models.Model):
         Tag,
         verbose_name='Теги',
     )
-    preparation_time = models.PositiveSmallIntegerField(
+    cooking_time = models.PositiveSmallIntegerField(
         'Время приготовления',
         validators=[
             MinValueValidator(
