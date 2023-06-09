@@ -34,7 +34,7 @@ class UserGetSerializer(UserSerializer):
 class RecipeSmallSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
+        fields = ('id', 'name', 'image', 'preparation_time')
 
 
 class UserSubscribeRepresentSerializer(UserGetSerializer):
