@@ -11,18 +11,28 @@ class Tag(models.Model):
         unique=True
     )
     color = ColorField(
-        'Цвет',
-        unique=True
+        'Цвет'
     )
     slug = models.SlugField(
         'Слаг',
         max_length=200,
         unique=True
     )
+    font_size = models.IntegerField(
+        'Размер шрифта',
+        null=True,
+        blank=True
+    )
 
     class Meta:
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['color', 'font_size'],
+                name='unique_color_font_size'
+            )
+        ]
 
     def __str__(self):
         return self.name[:50]
@@ -31,7 +41,8 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     name = models.CharField(
         'Название',
-        max_length=200
+        max_length=200,
+        unique=True
     )
     measurement_unit = models.CharField(
         'Единица измерения',
@@ -85,7 +96,7 @@ class Recipe(models.Model):
     )
 
     class Meta:
-        ordering = ('id',)
+        ordering = ('-id',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
 
@@ -106,7 +117,7 @@ class RecipeIngredient(models.Model):
         related_name='recipeingredients',
         verbose_name='Ингредиент',
     )
-    amount = models.PositiveSmallIntegerField(
+    amount = models.BigIntegerField(
         'Количество',
         validators=[
             MinValueValidator(
@@ -184,3 +195,25 @@ class ShoppingCart(AbstractUserItem):
     def __str__(self):
         return (f'{self.user.username} добавил'
                 f'{self.recipe.name} в список покупок.')
+
+
+# class CartItem(models.Model):
+#     shopping_cart = models.ForeignKey(
+#         ShoppingCart,
+#         on_delete=models.CASCADE,
+#         verbose_name='Список покупок'
+#     )
+#     recipe = models.ForeignKey(
+#         Recipe,
+#         on_delete=models.CASCADE,
+#         verbose_name='Рецепт'
+#     )
+#     quantity = models.PositiveIntegerField(verbose_name='Количество')
+
+#     class Meta:
+#         unique_together = ['shopping_cart', 'recipe']
+#         verbose_name = 'Элемент корзины'
+#         verbose_name_plural = 'Элементы корзины'
+
+#     def __str__(self):
+#         return f'{self.shopping_cart} - {self.recipe}'

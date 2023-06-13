@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
 
@@ -63,6 +64,10 @@ class Subscription(models.Model):
         related_name='following',
         verbose_name='Автор'
     )
+
+    def clean(self):
+        if self.user == self.author:
+            raise ValidationError("Нельзя подписываться на самого себя.")
 
     class Meta:
         verbose_name = 'Подписка'
