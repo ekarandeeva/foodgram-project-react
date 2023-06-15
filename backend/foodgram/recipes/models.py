@@ -1,5 +1,6 @@
 from colorfield.fields import ColorField
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from users.models import User
@@ -26,15 +27,17 @@ class Tag(models.Model):
         blank=True
     )
 
+    def clean(self):
+        tags_with_same_color = Tag.objects.filter(color=self.color,
+                                                  font_size=self.font_size)
+        if tags_with_same_color.exists():
+            raise ValidationError(
+                'Тег с таким цветом и размером шрифта уже существует.'
+            )
+
     class Meta:
         verbose_name = 'Тег'
         verbose_name_plural = 'Теги'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['color', 'font_size'],
-                name='unique_color_font_size'
-            )
-        ]
 
     def __str__(self):
         return self.name[:settings.MAX_LENGTH]
