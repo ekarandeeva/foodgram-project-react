@@ -28,11 +28,11 @@ class Tag(models.Model):
     )
 
     def clean(self):
-        tags_with_same_color = Tag.objects.filter(color=self.color,
-                                                  font_size=self.font_size)
+        color_lower = self.color.lower()
+        tags_with_same_color = Tag.objects.filter(color__iexact=color_lower)
         if tags_with_same_color.exists():
             raise ValidationError(
-                'Тег с таким цветом и размером шрифта уже существует.'
+                'Тег с таким цветом уже существует.'
             )
 
     class Meta:
