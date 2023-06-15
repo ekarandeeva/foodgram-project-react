@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
@@ -48,7 +49,7 @@ class User(AbstractUser):
         ]
 
     def __str__(self):
-        return self.username[:50]
+        return self.username[:settings.MAX_LENGTH]
 
 
 class Subscription(models.Model):

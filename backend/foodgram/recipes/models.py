@@ -1,4 +1,5 @@
 from colorfield.fields import ColorField
+from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from users.models import User
@@ -11,7 +12,8 @@ class Tag(models.Model):
         unique=True
     )
     color = ColorField(
-        'Цвет'
+        'Цвет',
+        unique=True
     )
     slug = models.SlugField(
         'Слаг',
@@ -35,14 +37,13 @@ class Tag(models.Model):
         ]
 
     def __str__(self):
-        return self.name[:50]
+        return self.name[:settings.MAX_LENGTH]
 
 
 class Ingredient(models.Model):
     name = models.CharField(
         'Название',
-        max_length=200,
-        unique=True
+        max_length=200
     )
     measurement_unit = models.CharField(
         'Единица измерения',
@@ -54,7 +55,7 @@ class Ingredient(models.Model):
         verbose_name_plural = 'Ингредиенты'
 
     def __str__(self):
-        return self.name[:50]
+        return self.name[:settings.MAX_LENGTH]
 
 
 class Recipe(models.Model):
@@ -87,7 +88,8 @@ class Recipe(models.Model):
         'Время приготовления',
         validators=[
             MinValueValidator(
-                1, 'Время приготовления не должно быть меньше единицы'
+                settings.MIN_TIME,
+                'Время приготовления не должно быть меньше единицы'
             ),
             MaxValueValidator(
                 32767, 'Время приготовления превышает допустимое значение'
@@ -101,7 +103,7 @@ class Recipe(models.Model):
         verbose_name_plural = 'Рецепты'
 
     def __str__(self):
-        return self.name[:50]
+        return self.name[:settings.MAX_LENGTH]
 
 
 class RecipeIngredient(models.Model):
@@ -117,11 +119,12 @@ class RecipeIngredient(models.Model):
         related_name='recipeingredients',
         verbose_name='Ингредиент',
     )
-    amount = models.BigIntegerField(
+    amount = models.PositiveSmallIntegerField(
         'Количество',
         validators=[
             MinValueValidator(
-                1, 'Количество ингредиентов не может быть меньше одного'
+                settings.MIN_AMOUNT,
+                'Количество ингредиентов не может быть меньше одного'
             ),
             MaxValueValidator(
                 32767, 'Количество ингредиентов превышает допустимое значение'
@@ -195,25 +198,3 @@ class ShoppingCart(AbstractUserItem):
     def __str__(self):
         return (f'{self.user.username} добавил'
                 f'{self.recipe.name} в список покупок.')
-
-
-# class CartItem(models.Model):
-#     shopping_cart = models.ForeignKey(
-#         ShoppingCart,
-#         on_delete=models.CASCADE,
-#         verbose_name='Список покупок'
-#     )
-#     recipe = models.ForeignKey(
-#         Recipe,
-#         on_delete=models.CASCADE,
-#         verbose_name='Рецепт'
-#     )
-#     quantity = models.PositiveIntegerField(verbose_name='Количество')
-
-#     class Meta:
-#         unique_together = ['shopping_cart', 'recipe']
-#         verbose_name = 'Элемент корзины'
-#         verbose_name_plural = 'Элементы корзины'
-
-#     def __str__(self):
-#         return f'{self.shopping_cart} - {self.recipe}'
