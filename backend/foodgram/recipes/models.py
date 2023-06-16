@@ -134,7 +134,7 @@ class RecipeIngredient(models.Model):
     def clean(self):
         if self.amount > 32767:
             raise ValidationError(
-                'Количество ингредиентов превышает допустимое значение'
+                'Количество ингредиентов превышает допустимое значение.'
             )
         super().clean()
 
