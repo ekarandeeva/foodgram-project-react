@@ -1,4 +1,4 @@
-from api.utils import Base64ImageField, create_ingredients
+from api.utils import Base64ImageField, create_ingredients, get_is_field_action
 from django.db import transaction
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
@@ -147,12 +147,19 @@ class RecipeGetSerializer(serializers.ModelSerializer):
                     user=request.user, recipe=obj
                 ).exists())
 
+    # def get_is_in_shopping_cart(self, obj):
+    #     request = self.context.get('request')
+    #     return (request and request.user.is_authenticated
+    #             and ShoppingCart.objects.filter(
+    #                 user=request.user, recipe=obj
+    #             ).exists())
+
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
-        return (request and request.user.is_authenticated
-                and ShoppingCart.objects.filter(
-                    user=request.user, recipe=obj
-                ).exists())
+        data = {
+            'recipe': obj.id
+        }
+        return get_is_field_action(request, ShoppingCart, data)
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):

@@ -1,3 +1,4 @@
+from django_filters import rest_framework
 from django_filters import rest_framework as filters
 from recipes.models import Ingredient, Recipe, Tag
 
@@ -9,11 +10,13 @@ class RecipeFilter(filters.FilterSet):
         to_field_name='slug',
     )
     is_favorited = filters.BooleanFilter(
+        field_name='favorites',
         method='get_is_favorited'
     )
     is_in_shopping_cart = filters.BooleanFilter(
         method='get_is_in_shopping_cart'
     )
+    author = rest_framework.NumberFilter(field_name='author__id')
 
     class Meta:
         model = Recipe
@@ -24,10 +27,19 @@ class RecipeFilter(filters.FilterSet):
             return queryset.filter(favorites__user=self.request.user)
         return queryset
 
+    # def get_is_in_shopping_cart(self, queryset, name, value):
+    #     if self.request.user.is_authenticated and value:
+    #         return queryset.filter(carts__user=self.request.user)
+    #     return queryset
+
     def get_is_in_shopping_cart(self, queryset, name, value):
-        if self.request.user.is_authenticated and value:
-            return queryset.filter(carts__user=self.request.user)
-        return queryset
+        if not value:
+            return queryset
+        return queryset.filter(
+            id__in=self.request.user.favorites.values_list('recipe')
+            if name == 'favorites'
+            else self.request.user.shoppings.values_list('recipe')
+        )
 
 
 class IngredientFilter(filters.FilterSet):
