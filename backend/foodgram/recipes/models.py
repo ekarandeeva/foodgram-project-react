@@ -118,7 +118,7 @@ class RecipeIngredient(models.Model):
         related_name='recipeingredients',
         verbose_name='Ингредиент',
     )
-    amount = models.IntegerField(
+    amount = models.FloatField(
         'Количество',
         validators=[
             MinValueValidator(
@@ -126,7 +126,7 @@ class RecipeIngredient(models.Model):
                 'Количество ингредиентов не может быть меньше одного'
             ),
             MaxValueValidator(
-                32767, 'Количество ингредиентов превышает допустимое значение'
+                10e20, 'Количество ингредиентов превышает допустимое значение'
             )
         ]
     )
