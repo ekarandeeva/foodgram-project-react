@@ -21,11 +21,6 @@ class Tag(models.Model):
         max_length=200,
         unique=True
     )
-    font_size = models.IntegerField(
-        'Размер шрифта',
-        null=True,
-        blank=True
-    )
 
     def clean(self):
         color_lower = self.color.lower()
@@ -46,7 +41,8 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     name = models.CharField(
         'Название',
-        max_length=200
+        max_length=200,
+        unique=True
     )
     measurement_unit = models.CharField(
         'Единица измерения',
@@ -134,6 +130,13 @@ class RecipeIngredient(models.Model):
             )
         ]
     )
+
+    def clean(self):
+        if self.amount > 32767:
+            raise ValidationError(
+                'Количество ингредиентов превышает допустимое значение'
+            )
+        super().clean()
 
     class Meta:
         verbose_name = 'Ингредиент в рецепте'
