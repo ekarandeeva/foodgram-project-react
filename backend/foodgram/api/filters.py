@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django_filters.rest_framework import FilterSet, filters
 from recipes.models import Ingredient, Recipe, Tag
 
@@ -19,19 +20,20 @@ class RecipeFilter(FilterSet):
         model = Recipe
         fields = ('author', 'tags', 'is_favorited', 'is_in_shopping_cart')
 
-    # def get_is_favorited(self, queryset, name, value):
-    #     if self.request.user.is_authenticated and value:
-    #         return queryset.filter(favorites__user=self.request.user)
-    #     return queryset
+    def get_is_favorited(self, queryset, name, value):
+        if self.request.user.is_authenticated and value:
+            return queryset.filter(favorites__user=self.request.user)
+        return queryset
 
-    def get_filter_queryset(self, queryset, field_name, value):
-        if not value:
-            return queryset
-        return queryset.filter(
-            id__in=self.request.user.favorites.values_list('recipe')
-            if field_name == 'favorites'
-            else self.request.user.shoppings.values_list('recipe')
-        )
+    def filter_queryset(self, queryset):
+        filters = Q()
+        if 'is_in_shopping_cart' in self.request.GET and \
+                self.request.user.is_authenticated:
+            is_in_shopping_cart = self.request.GET.get('is_in_shopping_cart')
+            if is_in_shopping_cart.lower() == 'true':
+                filters |= Q(shoppingcarts__user=self.request.user)
+        queryset = queryset.filter(filters)
+        return super().filter_queryset(queryset)
 
 
 class IngredientFilter(FilterSet):
