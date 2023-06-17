@@ -1,4 +1,5 @@
-from api.utils import Base64ImageField, create_ingredients, get_is_field_action
+from api.utils import Base64ImageField, create_ingredients
+from django.db.models import F
 from django.db import transaction
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
@@ -134,18 +135,12 @@ class RecipeGetSerializer(serializers.ModelSerializer):
     is_in_shopping_cart = serializers.SerializerMethodField()
     image = Base64ImageField(required=True)
 
-    class Meta:
-        model = Recipe
-        fields = ('id', 'tags', 'author', 'ingredients',
-                  'is_favorited', 'is_in_shopping_cart', 'name',
-                  'image', 'text', 'cooking_time')
-
-    def get_is_favorited(self, obj):
-        request = self.context.get('request')
-        return (request and request.user.is_authenticated
-                and Favorite.objects.filter(
-                    user=request.user, recipe=obj
-                ).exists())
+    # def get_is_favorited(self, obj):
+    #     request = self.context.get('request')
+    #     return (request and request.user.is_authenticated
+    #             and Favorite.objects.filter(
+    #                 user=request.user, recipe=obj
+    #             ).exists())
 
     # def get_is_in_shopping_cart(self, obj):
     #     request = self.context.get('request')
@@ -154,12 +149,41 @@ class RecipeGetSerializer(serializers.ModelSerializer):
     #                 user=request.user, recipe=obj
     #             ).exists())
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        tags_data = TagSerialiser(instance.tags.all(), many=True).data
+        representation['tags'] = tags_data
+        return representation
+
+    def get_is_favorited(self, obj):
+        return obj.in_favorites.filter(
+            author=self.context['request'].user).exists()
+
     def get_is_in_shopping_cart(self, obj):
-        request = self.context.get('request')
-        data = {
-            'recipe': obj.id
-        }
-        return get_is_field_action(request, ShoppingCart, data)
+        return obj.shopping_cart.filter(
+            author=self.context['request'].user).exists()
+
+    def get_ingredients(self, obj):
+        return obj.ingredients.values(
+            'id', 'name', 'measurement_unit', amount=F(
+                'ingredients_amount__amount'
+            )
+        )
+
+    class Meta:
+        model = Recipe
+        fields = (
+            'id',
+            'tags',
+            'author',
+            'ingredients',
+            'is_favorited',
+            'is_in_shopping_cart',
+            'name',
+            'image',
+            'text',
+            'cooking_time',
+        )
 
 
 class RecipeCreateSerializer(serializers.ModelSerializer):
