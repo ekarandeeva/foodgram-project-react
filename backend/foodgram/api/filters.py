@@ -42,7 +42,7 @@ class RecipeFilter(FilterSet):
         )
 
 
-class IngredientFilter(filters.FilterSet):
+class IngredientFilter(FilterSet):
     name = filters.CharFilter(
         field_name='name',
         lookup_expr='istartswith'
