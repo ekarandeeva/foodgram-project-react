@@ -131,7 +131,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_shopping_cart(self, request):
         """Отправка файла со списком покупок."""
         ingredients = RecipeIngredient.objects.filter(
-            recipe__shoppingcarts__user=request.user
+            recipe__carts__user=request.user
         ).values(
             'ingredient__name', 'ingredient__measurement_unit'
         ).annotate(ingredient_amount=Sum('amount'))
