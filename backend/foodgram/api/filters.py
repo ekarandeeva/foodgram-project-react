@@ -44,19 +44,6 @@ User = get_user_model()
 #             else self.request.user.shoppings.values_list('recipe')
 #         )
 
-    # class Meta:
-    #     model = Recipe
-    #     fields = ('author', 'tags', 'is_favorited', 'is_in_shopping_cart')
-
-    # def get_is_favorited(self, queryset, name, value):
-    #     if self.request.user.is_authenticated and value:
-    #         return queryset.filter(favorites__user=self.request.user)
-    #     return queryset
-
-    # def get_is_in_shopping_cart(self, queryset, name, value):
-    #     if self.request.user.is_authenticated and value:
-    #         return queryset.filter(carts__user=self.request.user)
-    #     return queryset
 
 class RecipeFilter(filters.FilterSet):
     is_favorited = filters.BooleanFilter(method='filter_is_favorited')
