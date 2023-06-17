@@ -27,8 +27,8 @@ class RecipeFilter(FilterSet):
 
     def filter_queryset(self, queryset):
         filters = Q()
-        if 'is_in_shopping_cart' in self.request.GET and \
-                self.request.user.is_authenticated:
+        if ('is_in_shopping_cart' in self.request.GET
+                and self.request.user.is_authenticated):
             is_in_shopping_cart = self.request.GET.get('is_in_shopping_cart')
             if is_in_shopping_cart.lower() == 'true':
                 filters |= Q(shoppingcarts__user=self.request.user)
