@@ -1,6 +1,5 @@
 from api.utils import Base64ImageField, create_ingredients
 from django.db import transaction
-from django.db.models import F
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
                             ShoppingCart, Tag)
